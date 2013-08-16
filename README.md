@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/maciejzasada/grunt-gae.png?branch=dev)](https://travis-ci.org/maciejzasada/grunt-gae)
 
-> Google App Engine deployment plugin for Grunt.
+> Google App Engine deployment and run plugin for Grunt.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.1`
@@ -31,7 +31,7 @@ grunt.initConfig({
       // Task-specific options go here.
     },
     your_target: {
-      // Target-specific file lists and/or options go here.
+      // Target-specific options go here.
     },
   },
 })
@@ -39,17 +39,35 @@ grunt.initConfig({
 
 ### Options
 
-#### options.separator
+#### options.application
 Type: `String`
-Default value: `',  '`
+Default value: `''`
 
-A string value that is used to do something with whatever.
+Application name. Determines deployment target.
 
-#### options.punctuation
+#### options.auth
+Type: `String`
+Default value: `'gae.auth'`
+
+Path to a gae.auth file with app developer / admin credentials.
+The file format is:
+`name@domain.com password`  
+IMPORTANT: please always add that file to .gitignore to ensure its confidentiality.
+
+#### options.path
 Type: `String`
 Default value: `'.'`
 
-A string value that is used to do something else with whatever else.
+Path to the Google App Engine application root (which includes app.yaml file).
+
+#### options.args
+Type: `Object`
+Default value: `{}`
+
+Additional command line arguments passed to Google App Engine scripts when executing the task.
+A full list of arguments can be found:
+* for `run` action: https://developers.google.com/appengine/docs/python/tools/devserver#Python_Command-line_arguments
+* for other actions: https://developers.google.com/appengine/docs/python/tools/uploadinganapp#Python_Command-line_arguments
 
 ### Usage Examples
 
