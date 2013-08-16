@@ -15,19 +15,35 @@ module.exports = function (grunt) {
 
     var sys = require('sys'),
         exec = require('child_process').exec,
-        format = require('util').format;
+        format = require('util').format,
+
+        COMMAND_KILL = 'kill $(< .grunt-gae-pid) && rm -rf .grunt-gae.pid',
+        COMMAND_RUN = 'dev_appserver.py {args}{path}',
+        COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
+        COMMAND_APPCFG = 'appcfg.py {args}{action} {path}';
 
     grunt.registerMultiTask('gae', 'Google App Engine deployment plugin for Grunt.', function () {
+
+        // Check if action was specified.
 
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
                 application: '',
-                yaml: 'app.yaml',
-                port: 8080,
-                admin_port: 8000
+                auth: 'gae.auth',
+                path: '.',
+                args: {},
+                async: false,
+                stdout: true,
+                stderr: true
             }),
             childProcess,
             action = this.data.action,
+            async = options.async || grunt.option('async'),
+            kill = grunt.option('kill') || action === 'kill',
+            args,
+            command,
+            field,
+            run,
             done = this.async();
 
         // Check if action was specified.
@@ -35,71 +51,100 @@ module.exports = function (grunt) {
             return grunt.log.error('No action specified.');
         }
 
-        // Check if the specified action is correct.
-        if (['run', 'deploy'].indexOf(action) === -1) {
-            return grunt.log.error(format('%s is not a valid gae action.', action));
+        // Prepare the run code.
+        run = function (callback) {
+
+            // Run the command.
+            childProcess = exec(command, {}, function () {});
+
+            // Listen to output
+            if (options.stdout) {
+                childProcess.stdout.on('data', function (d) {
+                    grunt.log.write(d);
+                });
+            }
+
+            if (options.stderr) {
+                childProcess.stderr.on('data', function (d) {
+                    grunt.log.error(d);
+                });
+            }
+
+            // Listen to exit.
+            childProcess.on('exit', function (code) {
+
+                if (callback) {
+                    callback(code);
+                }
+
+                done();
+            });
+
+        };
+
+        // Evaluate arguments to pass.
+        args = '';
+        for (field in options.args) {
+            args += format('--%s=%s ', field, options.args[field]);
         }
 
         // Handle the action specified
         switch(action) {
 
             case 'run':
-                grunt.log.writeln('RUNNING');
-                childProcess = exec('pwd', {}, function () {
-                    grunt.log.writeln('callback');
+            case 'kill':
+                // Kill running servers first.
+                exec(COMMAND_KILL, {}, function () {}).on('exit', function (code) {
+
+                    // If the task is killed only, do not do anything else.
+                    if (code === 0) {
+                        if (options.stdout) {
+                            grunt.log.writeln('Server killed.');
+                        }
+                    }
+
+                    if (kill) {
+                        if (code !== 0) {
+                            if (options.stderr) {
+                                grunt.log.error('Server not running. Nothing to kill.');
+                            }
+                        }
+                        return done();
+                    }
+
+                    // Compile the command
+                    command = COMMAND_RUN.replace('{args}', args).replace('{path}', options.path);
+
+                    // Run it asynchronously
+                    if (async) {
+                        command = COMMAND_ASYNC.replace('{command}', command);
+                    }
+
+                    grunt.log.writeln(command);
+
+                    run(function (code) {
+                        if (options.stdout) {
+                            if (code === 0 && async) {
+                                grunt.log.warn('Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode.');
+                            } else if (code === 0) {
+                                grunt.log.writeln('Server started');
+                            }
+                        }
+                        if (options.stderr && code !== 0) {
+                            grunt.log.error('Error starting the server.');
+                        }
+                    });
                 });
+
                 break;
 
-            case 'deploy':
-                grunt.log.writeln('DEPLOYING');
-                childProcess = exec('pwd', {}, function () {
-                    grunt.log.writeln('callback');
-                });
+            default:
+                grunt.log.writeln('appcfg.py');
+                command = COMMAND_APPCFG.replace('{args}', args).replace('{action}', action).replace('{path}', options.path);
+                grunt.log.writeln(command);
                 break;
 
         }
 
-        childProcess.stdout.on('data', function (d) {
-            grunt.log.write(d);
-        });
-        childProcess.stderr.on('data', function (d) {
-            grunt.log.error(d);
-        });
-
-        childProcess.on('exit', function (code) {
-            if (code !== 0) {
-                grunt.log.error(format('Exited with code: %d.', code));
-                return done(false);
-            }
-            grunt.verbose.ok(format('Exited with code: %d.', code));
-            done();
-        });
-
-        /*
-         // Iterate over all specified file groups.
-         this.files.forEach(function(f) {
-         // Concat specified files.
-         var src = f.src.filter(function(filepath) {
-         // Warn on and remove invalid source files (if nonull was set).
-         if (!grunt.file.exists(filepath)) {
-         grunt.log.warn('Source file "' + filepath + '" not found.');
-         return false;
-         } else {
-         return true;
-         }
-         }).map(function(filepath) {
-         // Read file source.
-         return grunt.file.read(filepath);
-         }).join(grunt.util.normalizelf(options.separator));
-
-         // Handle options.
-         src += options.punctuation;
-
-         // Write the destination file.
-         grunt.file.write(f.dest, src);
-
-         // Print a success message.
-         grunt.log.writeln('File "' + f.dest + '" created.');
-         */
     });
 };

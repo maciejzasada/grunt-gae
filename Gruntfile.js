@@ -33,7 +33,8 @@ module.exports = function (grunt) {
 
             options: {
                 application: 'grunt-gae',
-                yaml: 'app/app.yaml'
+                path: 'app/',
+                auth: 'gae.auth'
             },
 
             run_default: {
@@ -41,25 +42,33 @@ module.exports = function (grunt) {
             },
 
             run_custom: {
+                action: 'run',
+                options: {
+                    path: 'app',
+                    args: {
+                        port: 8081,
+                        host: '0.0.0.0'
+                    }
+                }
+            },
 
+            run_async: {
+                action: 'run',
+                options: {
+                    async: true
+                }
+            },
+
+            kill: {
+                action: 'kill'
             },
 
             deploy_default: {
-                options: {
-                },
-                files: {
-                    'tmp/default_options': ['test/fixtures/testing', 'test/fixtures/123']
-                }
+                action: 'update'
             },
 
             deploy_custom: {
-                options: {
-                    separator: ': ',
-                    punctuation: ' !!!'
-                },
-                files: {
-                    'tmp/custom_options': ['test/fixtures/testing', 'test/fixtures/123']
-                }
+
             }
         },
 
