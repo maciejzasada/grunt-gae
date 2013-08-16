@@ -1,6 +1,6 @@
 # grunt-gae
 
-[![Build Status](https://travis-ci.org/maciejzasada/grunt-gae.png?branch=dev)](https://travis-ci.org/maciejzasada/grunt-gae)
+[![Build Status](https://travis-ci.org/maciejzasada/grunt-gae.png?branch=master)](https://travis-ci.org/maciejzasada/grunt-gae)
 
 > Google App Engine deployment plugin for Grunt.
 
