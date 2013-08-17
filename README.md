@@ -289,3 +289,4 @@ Whenever reporting an issue, please run the task in which you can observe a bug 
  * 2013-08-17   v0.1.0   initial release
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/09f9aacdf9d835d771e7fe90f8495eba "githalytics.com")](http://githalytics.com/maciejzasada/grunt-gae)
+[![githalytics.com alpha](https://cruel-carlota.pagodabox.com/5fe337c7298ecdd5a70182701804cd18 "githalytics.com")](http://githalytics.com/maciejzasada/grunt-gae)
