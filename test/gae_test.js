@@ -23,38 +23,16 @@ var grunt = require('grunt');
  */
 
 exports.gae = {
+
     setUp: function (done) {
         // setup here if necessary
         done();
     },
-    run_default: function (test) {
-        test.expect(1);
 
-//    var actual = grunt.file.read('tmp/default_options');
-//    var expected = grunt.file.read('test/expected/default_options');
-//    test.equal(actual, expected, 'should describe what the default behavior is.');
-        test.equal(1, 1, 'TODO: implement the test');
-
-        test.done();
-    },
-    run_custom: function (test) {
+    tmp: function (test) {
         test.expect(1);
-
-//    var actual = grunt.file.read('tmp/custom_options');
-//    var expected = grunt.file.read('test/expected/custom_options');
-//    test.equal(actual, expected, 'should describe what the custom option(s) behavior is.');
-        test.equal(1, 1, 'TODO: implement the test');
-
-        test.done();
-    },
-    deploy_default: function (test) {
-        test.expect(1);
-        test.equal(1, 1, 'TODO: implement the test');
-        test.done();
-    },
-    deploy_custom: function (test) {
-        test.expect(1);
-        test.equal(1, 1, 'TODO: implement the test');
+        test.equal(1, 1, 'TODO: implement tests');
         test.done();
     }
+
 };
