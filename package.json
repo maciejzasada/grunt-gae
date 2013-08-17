@@ -1,43 +1,53 @@
 {
-  "name": "grunt-gae",
-  "description": "Google App Engine deployment plugin for Grunt.",
-  "version": "0.1.0",
-  "homepage": "https://github.com/maciejzasada/grunt-gae",
-  "author": {
-    "name": "Maciej Zasada",
-    "email": "maciejzsd@gmail.com",
-    "url": "http://www.maciejzasada.com"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://git@github.com/maciejzasada/grunt-gae.git"
-  },
-  "bugs": {
-    "url": "https://github.com/maciejzasada/grunt-gae/issues"
-  },
-  "licenses": [
-    {
-      "type": "MIT",
-      "url": "https://github.com/maciejzasada/grunt-gae/blob/master/LICENSE-MIT"
-    }
-  ],
-  "main": "Gruntfile.js",
-  "engines": {
-    "node": ">= 0.8.0"
-  },
-  "scripts": {
-    "test": "grunt test"
-  },
-  "devDependencies": {
-    "grunt-contrib-jshint": "~0.6.0",
-    "grunt-contrib-clean": "~0.4.0",
-    "grunt-contrib-nodeunit": "~0.2.0",
-    "grunt": "~0.4.1"
-  },
-  "peerDependencies": {
-    "grunt": "~0.4.1"
-  },
-  "keywords": [
-    "gruntplugin"
-  ]
+    "name": "grunt-gae",
+    "description": "Google App Engine management plugin for Grunt.",
+    "version": "0.1.0",
+    "homepage": "https://github.com/maciejzasada/grunt-gae",
+    "author": {
+        "name": "Maciej Zasada",
+        "email": "hello@maciejzasada.com",
+        "url": "http://www.maciejzasada.com"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://git@github.com/maciejzasada/grunt-gae.git"
+    },
+    "bugs": {
+        "url": "https://github.com/maciejzasada/grunt-gae/issues"
+    },
+    "licenses": [
+        {
+            "type": "MIT",
+            "url": "https://github.com/maciejzasada/grunt-gae/blob/master/LICENSE"
+        }
+    ],
+    "main": "Gruntfile.js",
+    "engines": {
+        "node": ">= 0.8.0"
+    },
+    "scripts": {
+        "test": "grunt test"
+    },
+    "devDependencies": {
+        "grunt-contrib-jshint": "~0.6.0",
+        "grunt-contrib-clean": "~0.4.0",
+        "grunt-contrib-nodeunit": "~0.2.0",
+        "grunt": "~0.4.1"
+    },
+    "peerDependencies": {
+        "grunt": "~0.4.1"
+    },
+    "keywords": [
+        "gruntplugin",
+        "grunt",
+        "gae",
+        "google",
+        "app",
+        "engine",
+        "deployment",
+        "appcfg",
+        "appcfg.py",
+        "dev_appserver",
+        "dev_appserver.py"
+    ]
 }
