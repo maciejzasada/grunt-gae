@@ -32,7 +32,7 @@ module.exports = function (grunt) {
         gae: {
 
             options: {
-                application: 'grunt-gae',
+                application: 'grunt-gae-test',
                 path: 'app/',
                 auth: 'gae.auth'
             },
@@ -68,7 +68,10 @@ module.exports = function (grunt) {
             },
 
             deploy_custom: {
-
+                action: 'update',
+                options: {
+                    version: 'custom'
+                }
             }
         },
 

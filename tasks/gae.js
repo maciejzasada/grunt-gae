@@ -8,27 +8,136 @@
 
 'use strict';
 
+/**
+ * Module export.
+ * @param grunt
+ */
 module.exports = function (grunt) {
 
     // Please see the Grunt documentation for more information regarding task
     // creation: http://gruntjs.com/creating-tasks
 
+    // Imports.
     var sys = require('sys'),
         exec = require('child_process').exec,
         format = require('util').format,
 
+    // Constants.
         COMMAND_KILL = 'kill $(< .grunt-gae-pid) && rm -rf .grunt-gae.pid',
         COMMAND_RUN = 'dev_appserver.py {args}{path}',
         COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
-        COMMAND_APPCFG = 'appcfg.py {args}{action} {path}';
+        COMMAND_APPCFG = 'appcfg.py {args}{auth}{action}{path}';
 
-    grunt.registerMultiTask('gae', 'Google App Engine deployment plugin for Grunt.', function () {
+    /**
+     * Reads authentication file.
+     * @param path
+     * @returns {null}
+     */
+    function readAuth (path) {
 
-        // Check if action was specified.
+        var auth;
+
+        if (grunt.file.exists(path)) {
+
+            auth = grunt.file.read(path).split(/\s/);
+            if (auth.length === 2 && auth[0].indexOf('@') !== -1) {
+
+                return {email: auth[0], password: auth[1]};
+
+            }
+
+        }
+
+        return null;
+
+    }
+
+    /**
+     * Runs GAE command.
+     * @param command
+     * @param auth
+     * @param options
+     * @param async
+     * @param done
+     * @param msgSuccess
+     * @param msgSuccessAsync
+     * @param msgFailure
+     */
+    function run (command, auth, options, async, done, msgSuccess, msgSuccessAsync, msgFailure) {
+
+        var args,
+            field,
+            childProcess;
+
+        // Pass auth.
+        if (auth) {
+            command = command.replace('{auth}', format('--email=%s --passin ', auth.email));
+        }
+
+        // Evaluate arguments to pass.
+        args = '';
+        for (field in options.args) {
+            args += format('--%s=%s ', field, options.args[field]);
+        }
+        command = command.replace('{args}', args).replace('{path}', options.path);
+
+        // Passin.
+        if (auth) {
+            command = format('echo %s | %s', auth.password, command);
+        }
+
+        // Run it asynchronously
+        if (async) {
+            command = COMMAND_ASYNC.replace('{command}', command);
+        }
+
+        grunt.log.debug(command);
+
+        // Run the command.
+        childProcess = exec(command, {}, function () {});
+
+        // Listen to output
+        if (options.stdout) {
+            childProcess.stdout.on('data', function (d) {
+                grunt.log.write(d);
+            });
+        }
+
+        // Listen to errors.
+        if (options.stderr) {
+            childProcess.stderr.on('data', function (d) {
+                grunt.log.error(d);
+            });
+        }
+
+        // Listen to exit.
+        childProcess.on('exit', function (code) {
+
+            if (options.stdout) {
+                if (code === 0 && async) {
+                    grunt.log.subhead(msgSuccessAsync || 'Unable to determine success of asynchronous operation. For debugging please disable async mode.');
+                } else if (code === 0) {
+                    grunt.log.ok(msgSuccess || 'Action executed successfully.');
+                }
+            }
+            if (options.stderr && code !== 0) {
+                grunt.log.error(msgFailure || 'Error executing the action.');
+            }
+
+            done();
+        });
+
+    }
+
+    /**
+     * Grunt task.
+     */
+    grunt.registerMultiTask('gae', 'Google App Engine deployment & run plugin for Grunt.', function () {
 
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
                 application: '',
+                version: null,
                 auth: 'gae.auth',
                 path: '.',
                 args: {},
@@ -36,60 +145,19 @@ module.exports = function (grunt) {
                 stdout: true,
                 stderr: true
             }),
-            childProcess,
-            action = this.data.action,
+
             async = options.async || grunt.option('async'),
-            kill = grunt.option('kill') || action === 'kill',
-            args,
-            command,
-            field,
-            run,
+            kill = grunt.option('kill') || this.data.action === 'kill',
+            auth,
             done = this.async();
 
         // Check if action was specified.
-        if (!action) {
+        if (!this.data.action) {
             return grunt.log.error('No action specified.');
         }
 
-        // Prepare the run code.
-        run = function (callback) {
-
-            // Run the command.
-            childProcess = exec(command, {}, function () {});
-
-            // Listen to output
-            if (options.stdout) {
-                childProcess.stdout.on('data', function (d) {
-                    grunt.log.write(d);
-                });
-            }
-
-            if (options.stderr) {
-                childProcess.stderr.on('data', function (d) {
-                    grunt.log.error(d);
-                });
-            }
-
-            // Listen to exit.
-            childProcess.on('exit', function (code) {
-
-                if (callback) {
-                    callback(code);
-                }
-
-                done();
-            });
-
-        };
-
-        // Evaluate arguments to pass.
-        args = '';
-        for (field in options.args) {
-            args += format('--%s=%s ', field, options.args[field]);
-        }
-
         // Handle the action specified
-        switch(action) {
+        switch(this.data.action) {
 
             case 'run':
             case 'kill':
@@ -112,36 +180,33 @@ module.exports = function (grunt) {
                         return done();
                     }
 
-                    // Compile the command
-                    command = COMMAND_RUN.replace('{args}', args).replace('{path}', options.path);
-
-                    // Run it asynchronously
-                    if (async) {
-                        command = COMMAND_ASYNC.replace('{command}', command);
-                    }
-
-                    grunt.log.writeln(command);
-
-                    run(function (code) {
-                        if (options.stdout) {
-                            if (code === 0 && async) {
-                                grunt.log.warn('Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode.');
-                            } else if (code === 0) {
-                                grunt.log.writeln('Server started');
-                            }
-                        }
-                        if (options.stderr && code !== 0) {
-                            grunt.log.error('Error starting the server.');
-                        }
-                    });
+                    run(COMMAND_RUN, null, options, async, done, 'Server started', 'Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode.', 'Error starting the server.')
                 });
 
                 break;
 
             default:
-                grunt.log.writeln('appcfg.py');
-                command = COMMAND_APPCFG.replace('{args}', args).replace('{action}', action).replace('{path}', options.path);
-                grunt.log.writeln(command);
+                // Every other action is passed to appcfg.py.
+
+                // Read GAE auth.
+                if (!grunt.file.exists(options.auth)) {
+                    return grunt.log.error('Authentication file does not exist.');
+                }
+                auth = readAuth(options.auth);
+                if (!auth) {
+                    return grunt.log.error('Invalid authentication file.');
+                }
+
+                // Forward special arguments.
+                if (options.application) {
+                    options.args.application = options.application;
+                }
+                if (options.version) {
+                    options.args.version = options.version;
+                }
+
+                run(COMMAND_APPCFG.replace('{action}', format('%s ', this.data.action)), auth, options, async, done);
+
                 break;
 
         }
