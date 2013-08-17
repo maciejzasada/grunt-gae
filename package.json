@@ -1,11 +1,11 @@
 {
     "name": "grunt-gae",
-    "description": "Google App Engine deployment plugin for Grunt.",
+    "description": "Google App Engine management plugin for Grunt.",
     "version": "0.1.0",
     "homepage": "https://github.com/maciejzasada/grunt-gae",
     "author": {
         "name": "Maciej Zasada",
-        "email": "maciejzsd@gmail.com",
+        "email": "hello@maciejzasada.com",
         "url": "http://www.maciejzasada.com"
     },
     "repository": {
@@ -18,7 +18,7 @@
     "licenses": [
         {
             "type": "MIT",
-            "url": "https://github.com/maciejzasada/grunt-gae/blob/master/LICENSE-MIT"
+            "url": "https://github.com/maciejzasada/grunt-gae/blob/master/LICENSE"
         }
     ],
     "main": "Gruntfile.js",
@@ -43,6 +43,11 @@
         "gae",
         "google",
         "app",
-        "engine"
+        "engine",
+        "deployment",
+        "appcfg",
+        "appcfg.py",
+        "dev_appserver",
+        "dev_appserver.py"
     ]
 }

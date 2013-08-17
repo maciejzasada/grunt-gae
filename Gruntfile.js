@@ -2,7 +2,7 @@
  * grunt-gae
  * https://github.com/maciejzasada/grunt-gae
  *
- * Copyright (c) 2013 Maciej Zasada
+ * Copyright (c) 2013 Maciej Zasada hello@maciejzasada.com
  * Licensed under the MIT license.
  */
 
@@ -37,19 +37,8 @@ module.exports = function (grunt) {
                 auth: 'gae.auth'
             },
 
-            run_default: {
+            run_sync: {
                 action: 'run'
-            },
-
-            run_custom: {
-                action: 'run',
-                options: {
-                    path: 'app',
-                    args: {
-                        port: 8081,
-                        host: '0.0.0.0'
-                    }
-                }
             },
 
             run_async: {
@@ -59,7 +48,17 @@ module.exports = function (grunt) {
                 }
             },
 
-            kill: {
+            run_async_port9999: {
+                action: 'run',
+                options: {
+                    async: true,
+                    args: {
+                        port: 9999
+                    }
+                }
+            },
+
+            stop: {
                 action: 'kill'
             },
 
@@ -67,12 +66,20 @@ module.exports = function (grunt) {
                 action: 'update'
             },
 
-            deploy_custom: {
+            deploy_dev: {
                 action: 'update',
                 options: {
-                    version: 'custom'
+                    version: 'dev'
+                }
+            },
+
+            deploy_different_app: {
+                action: 'update',
+                options: {
+                    application: 'grunt-gae-another-app'
                 }
             }
+
         },
 
         // Unit tests.

@@ -2,7 +2,7 @@
  * grunt-gae
  * https://github.com/maciejzasada/grunt-gae
  *
- * Copyright (c) 2013 Maciej Zasada
+ * Copyright (c) 2013 Maciej Zasada hello@maciejzasada.com
  * Licensed under the MIT license.
  */
 
@@ -13,9 +13,6 @@
  * @param grunt
  */
 module.exports = function (grunt) {
-
-    // Please see the Grunt documentation for more information regarding task
-    // creation: http://gruntjs.com/creating-tasks
 
     // Imports.
     var sys = require('sys'),
@@ -132,16 +129,16 @@ module.exports = function (grunt) {
     /**
      * Grunt task.
      */
-    grunt.registerMultiTask('gae', 'Google App Engine deployment & run plugin for Grunt.', function () {
+    grunt.registerMultiTask('gae', 'Google App Engine management plugin for Grunt.', function () {
 
         // Merge task-specific and/or target-specific options with these defaults.
         var options = this.options({
-                application: '',
+                application: null,
                 version: null,
-                auth: 'gae.auth',
                 path: '.',
-                args: {},
+                auth: 'gae.auth',
                 async: false,
+                args: {},
                 stdout: true,
                 stderr: true
             }),
@@ -187,6 +184,9 @@ module.exports = function (grunt) {
 
             default:
                 // Every other action is passed to appcfg.py.
+
+                // Prevent async appcfg.py actions
+                async = false;
 
                 // Read GAE auth.
                 if (!grunt.file.exists(options.auth)) {
