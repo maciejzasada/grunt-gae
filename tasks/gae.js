@@ -82,12 +82,9 @@ module.exports = function (grunt) {
         // Evaluate flags to pass.
         flags = '';
         for (i = 0; i < options.flags.length; ++i) {
-            grunt.log.debug('field: ' + options.flags[i]);
             flags += format('--%s ', options.flags[i]);
         }
 
-        grunt.log.debug('flags: ' + flags);
-        grunt.log.debug('command: ' + command);
         command = command.replace('{args}', args).replace('{flags}', flags).replace('{path}', options.path);
 
         // Passin.
