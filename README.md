@@ -115,13 +115,14 @@ If `null`, code will be deployed to default version, i.e. `your-app.appspot.com`
 
 #### options.auth
 Type: `String`
-Default value: `'gae.auth'`
+Default value: `'oauth2'`
 Required: `yes, except for 'run' and 'kill' actions.`
 
-Path to a `gae.auth` file with app developer / admin credentials.
+Enables OAuth2 if the value is `'oauth2'`, otherwise path to a `gae.auth` file with app developer / admin credentials.
 The file format is:
 `name@domain.com password`  
-*IMPORTANT: please always add that file to .gitignore to ensure its confidentiality.*
+*IMPORTANT: please always add that file to .gitignore to ensure its confidentiality.*  
+*OAuth2 NOTE: you need to be logged in with your applications administrator account in your default browser for OAuth2 to work.*
 
 #### options.async
 Type: `Boolean`
@@ -149,6 +150,26 @@ options: {
 }
 ```
 will result in appending `--host=0.0.0.0` to the executed GAE command.
+
+
+#### options.flags
+Type: `Array`
+Default value: `[]`
+
+Additional command line flags (value-less) passed to Google App Engine scripts when executing the task.
+A full list of flags can be found:
+* for `run` action: https://developers.google.com/appengine/docs/python/tools/devserver#Python_Command-line_arguments
+* for other actions: https://developers.google.com/appengine/docs/python/tools/uploadinganapp#Python_Command-line_arguments
+
+E.g. specifying:
+```
+options: {
+  flags: [
+    'no_cookies'
+  ]
+}
+```
+will result in appending `--no_cookies` to the executed GAE command.
 
 ### Usage Examples
 
@@ -214,8 +235,8 @@ grunt.initConfig({
 ```
 
 #### Deploying the code to a default version
-*Deploying to Google App Engine requires a valid `gae.auth` file (please see options section above).*
-The following task will deploy the code to default Google App Engine instance (i.e. `your-app.appspot.com`):
+*Deploying to Google App Engine requires being logged in with the application's administrator account in the default web browser, or a valid `gae.auth` file for non-OAuth2 transactions (please see options section above).*  
+The following task will deploy the code to default Google App Engine instance (i.e. `your-app.appspot.com`) using OAuth2:
 
 ```js
 grunt.initConfig({
@@ -228,8 +249,8 @@ grunt.initConfig({
 ```
 
 #### Deploying the code to a specific non-default version
-*Deploying to Google App Engine requires a valid `gae.auth` file (please see options section above).*
-The following task will deploy the code to `dev` Google App Engine instance (i.e. `dev.your-app.appspot.com`):
+*Deploying to Google App Engine requires being logged in with the application's administrator account in the default web browser, or a valid `gae.auth` file for non-OAuth2 transactions (please see options section above).*  
+The following task will deploy the code to `dev` Google App Engine instance (i.e. `dev.your-app.appspot.com`) reading the authentication credentials from `'gae.auth'` file:
 
 ```js
 grunt.initConfig({
@@ -237,6 +258,7 @@ grunt.initConfig({
     deploy_dev: {
       action: 'update',
       options: {
+        auth: 'gae.auth',
         version: 'dev'
       }
     }
@@ -245,7 +267,7 @@ grunt.initConfig({
 ```
 
 #### Deploying the code to a different application
-*Deploying to Google App Engine requires a valid `gae.auth` file (please see options section above).*
+*Deploying to Google App Engine requires being logged in with the application's administrator account in the default web browser, or a valid `gae.auth` file for non-OAuth2 transactions (please see options section above).*  
 The following task will deploy the code to Google App Engine application different than the one specified either in global options or in `app.yaml`:
 
 ```js
@@ -262,7 +284,7 @@ grunt.initConfig({
 ```
 
 #### Updating indexes
-*Updating indexes requires a valid `gae.auth` file (please see options section above).*
+*Updating indexes requires being logged in with the application's administrator account in the default web browser, or a valid `gae.auth` file for non-OAuth2 transactions (please see options section above).*  
 The following task will update indexes of `grunt-gae-another-app` application.
 
 ```js
@@ -278,6 +300,21 @@ grunt.initConfig({
 });
 ```
 
+
+#### Rolling back transaction.
+*Rolling back transaction requires being logged in with the application's administrator account in the default web browser, or a valid `gae.auth` file for non-OAuth2 transactions (please see options section above).*  
+The following task will rollback the current transaction.
+
+```js
+grunt.initConfig({
+  gae: {
+    update_indexes: {
+      action: 'rollback',
+    }
+  }
+});
+```
+
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
 
@@ -286,7 +323,8 @@ Please report all issues directly on the [Github Issues](https://github.com/maci
 Whenever reporting an issue, please run the task in which you can observe a bug with a `--debug` flag, e.g. `grunt gae:your_buggy_task --debug` and include full output from your console.
 
 ## Release History
- * 2013-08-17   v0.1.0   initial release
+ * 2013-10-06   v0.2.0   Flags added, OAuth2 support added.
+ * 2013-08-17   v0.1.0   Initial release.
 
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/09f9aacdf9d835d771e7fe90f8495eba "githalytics.com")](http://githalytics.com/maciejzasada/grunt-gae)
 [![githalytics.com alpha](https://cruel-carlota.pagodabox.com/5fe337c7298ecdd5a70182701804cd18 "githalytics.com")](http://githalytics.com/maciejzasada/grunt-gae)
