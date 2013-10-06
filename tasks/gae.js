@@ -21,9 +21,11 @@ module.exports = function (grunt) {
 
     // Constants.
         COMMAND_KILL = 'kill $(< .grunt-gae-pid) && rm -rf .grunt-gae.pid',
-        COMMAND_RUN = 'dev_appserver.py {args}{path}',
+        COMMAND_RUN = 'dev_appserver.py {args}{flags}{path}',
         COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
-        COMMAND_APPCFG = 'appcfg.py {args}{auth}{action}{path}';
+        COMMAND_APPCFG = 'appcfg.py {args}{flags}{auth}{action}{path}',
+
+        FLAG_OAUTH2 = 'oauth2';
 
     /**
      * Reads authentication file.
@@ -60,23 +62,33 @@ module.exports = function (grunt) {
      * @param msgSuccessAsync
      * @param msgFailure
      */
-    function run (command, auth, options, async, done, msgSuccess, msgSuccessAsync, msgFailure) {
+    function run(command, auth, options, async, done, msgSuccess, msgSuccessAsync, msgFailure) {
 
         var args,
+            flags,
             field,
+            i,
             childProcess;
 
         // Pass auth.
-        if (auth) {
-            command = command.replace('{auth}', format('--email=%s --passin ', auth.email));
-        }
+        command = command.replace('{auth}', auth ? format('--email=%s --passin ', auth.email) : '');
 
         // Evaluate arguments to pass.
         args = '';
         for (field in options.args) {
             args += format('--%s=%s ', field, options.args[field]);
         }
-        command = command.replace('{args}', args).replace('{path}', options.path);
+
+        // Evaluate flags to pass.
+        flags = '';
+        for (i = 0; i < options.flags.length; ++i) {
+            grunt.log.debug('field: ' + options.flags[i]);
+            flags += format('--%s ', options.flags[i]);
+        }
+
+        grunt.log.debug('flags: ' + flags);
+        grunt.log.debug('command: ' + command);
+        command = command.replace('{args}', args).replace('{flags}', flags).replace('{path}', options.path);
 
         // Passin.
         if (auth) {
@@ -136,9 +148,10 @@ module.exports = function (grunt) {
                 application: null,
                 version: null,
                 path: '.',
-                auth: 'gae.auth',
+                auth: 'oauth2',
                 async: false,
                 args: {},
+                flags: [],
                 stdout: true,
                 stderr: true
             }),
@@ -155,7 +168,6 @@ module.exports = function (grunt) {
 
         // Handle the action specified
         switch(this.data.action) {
-
             case 'run':
             case 'kill':
                 // Kill running servers first.
@@ -188,13 +200,15 @@ module.exports = function (grunt) {
                 // Prevent async appcfg.py actions
                 async = false;
 
-                // Read GAE auth.
-                if (!grunt.file.exists(options.auth)) {
-                    return grunt.log.error('Authentication file does not exist.');
-                }
-                auth = readAuth(options.auth);
-                if (!auth) {
-                    return grunt.log.error('Invalid authentication file.');
+                if (options.auth !== FLAG_OAUTH2 && options.flags.indexOf(FLAG_OAUTH2) === -1) {
+                    // Read GAE auth.
+                    if (!grunt.file.exists(options.auth)) {
+                        return grunt.log.error('Authentication file does not exist.');
+                    }
+                    auth = readAuth(options.auth);
+                    if (!auth) {
+                        return grunt.log.error('Invalid authentication file.');
+                    }
                 }
 
                 // Forward special arguments.
@@ -203,6 +217,11 @@ module.exports = function (grunt) {
                 }
                 if (options.version) {
                     options.args.version = options.version;
+                }
+
+                // Forward special flags.
+                if (options.auth === FLAG_OAUTH2) {
+                    options.flags.push(FLAG_OAUTH2);
                 }
 
                 run(COMMAND_APPCFG.replace('{action}', format('%s ', this.data.action)), auth, options, async, done);

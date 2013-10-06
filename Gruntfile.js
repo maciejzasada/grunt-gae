@@ -31,6 +31,7 @@ module.exports = function (grunt) {
         // Configuration to be run (and then tested).
         gae: {
 
+            // Global options. Shared across all subtasks.
             options: {
                 application: 'grunt-gae-test',
                 path: 'app/',
@@ -78,6 +79,26 @@ module.exports = function (grunt) {
                 options: {
                     application: 'grunt-gae-another-app'
                 }
+            },
+
+            deploy_oauth: {
+                action: 'update',
+                options: {
+                    auth: 'oauth2',
+                    flags: ['no_cookies']
+                }
+            },
+
+            deploy_oauth_flag: {
+                action: 'update',
+                options: {
+                    auth: null,
+                    flags: ['oauth2', 'no_cookies']
+                }
+            },
+
+            rollback: {
+                action: 'rollback'
             }
 
         },
