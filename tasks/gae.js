@@ -20,7 +20,7 @@ module.exports = function (grunt) {
         format = require('util').format,
 
     // Constants.
-        COMMAND_KILL = 'kill $(< .grunt-gae-pid) && rm -rf .grunt-gae.pid',
+        COMMAND_KILL = 'kill `cat .grunt-gae-pid` && rm -rf .grunt-gae-pid',
         COMMAND_RUN = 'dev_appserver.py {args}{flags}{path}',
         COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
         COMMAND_APPCFG = 'appcfg.py {args}{flags}{auth}{action}{path}',
