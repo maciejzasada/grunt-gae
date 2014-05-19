@@ -33,22 +33,14 @@ module.exports = function (grunt) {
      * @returns {null}
      */
     function readAuth (path) {
-
         var auth;
-
         if (grunt.file.exists(path)) {
-
-            auth = grunt.file.read(path).split(/\s/);
+            auth = grunt.file.read(path).trim().split(/\s/);
             if (auth.length === 2 && auth[0].indexOf('@') !== -1) {
-
                 return {email: auth[0], password: auth[1]};
-
             }
-
         }
-
         return null;
-
     }
 
     /**
@@ -118,7 +110,6 @@ module.exports = function (grunt) {
 
         // Listen to exit.
         childProcess.on('exit', function (code) {
-
             if (options.stdout) {
                 if (code === 0 && async) {
                     grunt.log.subhead(msgSuccessAsync || 'Unable to determine success of asynchronous operation. For debugging please disable async mode.');
@@ -126,6 +117,7 @@ module.exports = function (grunt) {
                     grunt.log.ok(msgSuccess || 'Action executed successfully.');
                 }
             }
+
             if (options.stderr && code !== 0) {
                 grunt.log.error(msgFailure || 'Error executing the action.');
             }
