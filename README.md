@@ -132,6 +132,15 @@ Required: `no`
 Specifies whether the action should be executed synchronously or asynchronously.
 Currently supported only for the `run` action.
 
+#### options.asyncOutput
+Type: `Boolean`
+Default value: `false`
+Required: `no`
+
+Specifies whether console output should be allowed from the local Google App Engine development server when it is launched asynchronously.
+This can be helpful under some circumstances, such as developers who will be running a `watch` task immediately after launching the server.
+Has no effect unless using `options.async = true` with the `run` action.
+
 #### options.args
 Type: `Object`
 Default value: `{}`
