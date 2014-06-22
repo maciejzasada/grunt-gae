@@ -22,8 +22,10 @@ module.exports = function (grunt) {
     // Constants.
         COMMAND_KILL = 'kill `cat .grunt-gae-pid` && rm -rf .grunt-gae-pid',
         COMMAND_RUN = 'dev_appserver.py {args}{flags}{path}',
-        COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
+        COMMAND_ASYNC = 'nohup {command} {redirect} & echo $! >> .grunt-gae-pid',
         COMMAND_APPCFG = 'appcfg.py {args}{flags}{auth}{action}{path}',
+
+        REDIRECT_DEVNULL = '>/dev/null 2>&1',
 
         FLAG_OAUTH2 = 'oauth2';
 
@@ -86,7 +88,9 @@ module.exports = function (grunt) {
 
         // Run it asynchronously
         if (async) {
-            command = COMMAND_ASYNC.replace('{command}', command);
+            command = COMMAND_ASYNC.
+                replace('{command}', command).
+                replace('{redirect}', options.asyncOutput ? '' : REDIRECT_DEVNULL);
         }
 
         grunt.log.debug(command);
@@ -139,6 +143,7 @@ module.exports = function (grunt) {
                 path: '.',
                 auth: 'oauth2',
                 async: false,
+                asyncOutput: false,
                 args: {},
                 flags: [],
                 stdout: true,
