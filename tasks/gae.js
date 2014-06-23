@@ -116,7 +116,11 @@ module.exports = function (grunt) {
         childProcess.on('exit', function (code) {
             if (options.stdout) {
                 if (code === 0 && async) {
-                    grunt.log.subhead(msgSuccessAsync || 'Unable to determine success of asynchronous operation. For debugging please disable async mode.');
+                    grunt.log.subhead(
+                        msgSuccessAsync ||
+                        options.asyncOutput && 'Output from asynchronous operation follows.' ||
+                        'Unable to determine success of asynchronous operation. For debugging please disable async mode or enable asyncOutput.'
+                    );
                 } else if (code === 0) {
                     grunt.log.ok(msgSuccess || 'Action executed successfully.');
                 }
@@ -183,7 +187,13 @@ module.exports = function (grunt) {
                         return done();
                     }
 
-                    run(COMMAND_RUN, null, options, async, done, 'Server started', 'Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode.', 'Error starting the server.')
+                    run(
+                        COMMAND_RUN, null, options, async, done, 'Server started',
+                        options.asyncOutput ?
+                            'Server started asynchronously, output follows.' :
+                            'Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode or enable asyncOutput.',
+                        'Error starting the server.'
+                    );
                 });
 
                 break;
