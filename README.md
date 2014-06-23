@@ -130,6 +130,9 @@ Default value: `false`
 Required: `no`
 
 Specifies whether the action should be executed synchronously or asynchronously.
+Running asynchronously can be handy if you want to quickly manage the server with `run` and `kill`, or
+if you want to perform another task after running the server without a dedicated parallelization plug-in
+like [grunt-concurrent](https://www.npmjs.org/package/grunt-concurrent).
 Currently supported only for the `run` action.
 
 #### options.asyncOutput
