@@ -137,8 +137,8 @@ Type: `Boolean`
 Default value: `false`
 Required: `no`
 
-Specifies whether console output should be allowed from the local Google App Engine development server when it is launched asynchronously.
-This can be helpful under some circumstances, such as developers who will be running a `watch` task immediately after launching the server.
+Specifies whether console output should be allowed from the local Google App Engine development server when it is launched asynchronously,
+which can be helpful under some circumstances.
 Has no effect unless using `options.async = true` with the `run` action.
 
 #### options.args
