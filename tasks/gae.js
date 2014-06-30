@@ -22,8 +22,10 @@ module.exports = function (grunt) {
     // Constants.
         COMMAND_KILL = 'kill `cat .grunt-gae-pid` && rm -rf .grunt-gae-pid',
         COMMAND_RUN = 'dev_appserver.py {args}{flags}{path}',
-        COMMAND_ASYNC = 'nohup {command} >/dev/null 2>&1 & echo $! >> .grunt-gae-pid',
+        COMMAND_ASYNC = 'nohup {command} {redirect} & echo $! >> .grunt-gae-pid',
         COMMAND_APPCFG = 'appcfg.py {args}{flags}{auth}{action}{path}',
+
+        REDIRECT_DEVNULL = '>/dev/null 2>&1',
 
         FLAG_OAUTH2 = 'oauth2';
 
@@ -86,7 +88,9 @@ module.exports = function (grunt) {
 
         // Run it asynchronously
         if (async) {
-            command = COMMAND_ASYNC.replace('{command}', command);
+            command = COMMAND_ASYNC.
+                replace('{command}', command).
+                replace('{redirect}', options.asyncOutput ? '' : REDIRECT_DEVNULL);
         }
 
         grunt.log.debug(command);
@@ -112,7 +116,11 @@ module.exports = function (grunt) {
         childProcess.on('exit', function (code) {
             if (options.stdout) {
                 if (code === 0 && async) {
-                    grunt.log.subhead(msgSuccessAsync || 'Unable to determine success of asynchronous operation. For debugging please disable async mode.');
+                    grunt.log.subhead(
+                        msgSuccessAsync ||
+                        options.asyncOutput && 'Output from asynchronous operation follows.' ||
+                        'Unable to determine success of asynchronous operation. For debugging please disable async mode or enable asyncOutput.'
+                    );
                 } else if (code === 0) {
                     grunt.log.ok(msgSuccess || 'Action executed successfully.');
                 }
@@ -139,6 +147,7 @@ module.exports = function (grunt) {
                 path: '.',
                 auth: 'oauth2',
                 async: false,
+                asyncOutput: false,
                 args: {},
                 flags: [],
                 stdout: true,
@@ -178,7 +187,13 @@ module.exports = function (grunt) {
                         return done();
                     }
 
-                    run(COMMAND_RUN, null, options, async, done, 'Server started', 'Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode.', 'Error starting the server.')
+                    run(
+                        COMMAND_RUN, null, options, async, done, 'Server started',
+                        options.asyncOutput ?
+                            'Server started asynchronously, output follows.' :
+                            'Server started asynchronously, unable to determine success of this operation. For debugging please disable async mode or enable asyncOutput.',
+                        'Error starting the server.'
+                    );
                 });
 
                 break;

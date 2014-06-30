@@ -130,7 +130,19 @@ Default value: `false`
 Required: `no`
 
 Specifies whether the action should be executed synchronously or asynchronously.
+Running asynchronously can be handy if you want to quickly manage the server with `run` and `kill`, or
+if you want to perform another task after running the server without a dedicated parallelization plug-in
+like [grunt-concurrent](https://www.npmjs.org/package/grunt-concurrent).
 Currently supported only for the `run` action.
+
+#### options.asyncOutput
+Type: `Boolean`
+Default value: `false`
+Required: `no`
+
+Specifies whether console output should be allowed from the local Google App Engine development server when it is launched asynchronously,
+which can be helpful under some circumstances.
+Has no effect unless using `options.async = true` with the `run` action.
 
 #### options.args
 Type: `Object`
