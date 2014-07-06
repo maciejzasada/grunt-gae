@@ -1,7 +1,7 @@
 {
     "name": "grunt-gae",
     "description": "Google App Engine management plugin for Grunt.",
-    "version": "0.2.3",
+    "version": "0.2.4",
     "homepage": "https://github.com/maciejzasada/grunt-gae",
     "author": {
         "name": "Maciej Zasada",
